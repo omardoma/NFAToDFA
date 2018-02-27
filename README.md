@@ -1,5 +1,5 @@
 # NFAToDFA
-A Java Implementation of the computation automata with subset construction NFA to DFA algorithm.
+An object oriented Java implementation of the computation automata model with subset construction NFA to DFA algorithm.
 
 ## How to run?
 Open the project in IntelliJ Idea.
