@@ -1,4 +1,4 @@
-import autamatons.DFA;
+import autamata.DFA;
 import exceptions.InvalidInputException;
 import states.State;
 
@@ -8,11 +8,11 @@ import java.io.IOException;
 import java.util.*;
 
 public class TestDFA {
-    public static final int INPUT_DIVISIONS = 6;
-    public static final String PRIMARY_INPUT_SPLIT = ",";
-    public static final String SECONDARY_INPUT_SPLIT = "#";
+    private static final int INPUT_DIVISIONS = 6;
+    private static final String PRIMARY_INPUT_SPLIT = ",";
+    private static final String SECONDARY_INPUT_SPLIT = "#";
 
-    public static ArrayList<String> readInputFile(String filePath) throws IOException {
+    private static ArrayList<String> readInputFile(String filePath) throws IOException {
         FileReader fr = new FileReader(filePath);
         BufferedReader br = new BufferedReader(fr);
         ArrayList<String> lines = new ArrayList<>();
@@ -35,7 +35,7 @@ public class TestDFA {
     }
 
 
-    public static void testInput(String[] input) {
+    private static void testInput(String[] input) {
         Set<State> states = new LinkedHashSet<>();
         for (String s : input[0].split(PRIMARY_INPUT_SPLIT)) {
             states.add(new State(s));
@@ -51,25 +51,25 @@ public class TestDFA {
         String[] inputs = input[5].split(SECONDARY_INPUT_SPLIT);
 
         try {
-            String[] currentTransition;
-            String[] transition;
+            String[] currentTransitionArray;
+            String[] transitionArray;
             String[] transitions = input[4].split(SECONDARY_INPUT_SPLIT);
             Set<String> addedStates = new HashSet<>();
             State currentState;
-            for (int i = 0; i < transitions.length; i++) {
-                currentTransition = transitions[i].split(PRIMARY_INPUT_SPLIT);
-                currentState = findState(currentTransition[0], states);
-                if (!addedStates.contains(currentTransition[0])) {
-                    for (int j = 0; j < transitions.length; j++) {
-                        transition = transitions[j].split(PRIMARY_INPUT_SPLIT);
-                        if (transition.length < 3) {
-                            throw new Exception("Incomplete Transition " + transitions[j]);
+            for (String transition : transitions) {
+                currentTransitionArray = transition.split(PRIMARY_INPUT_SPLIT);
+                currentState = findState(currentTransitionArray[0], states);
+                if (!addedStates.contains(currentTransitionArray[0])) {
+                    for (String innerTransition : transitions) {
+                        transitionArray = innerTransition.split(PRIMARY_INPUT_SPLIT);
+                        if (transitionArray.length < 3) {
+                            throw new Exception("Incomplete Transition " + innerTransition);
                         }
-                        if (transition[0].equals(currentTransition[0])) {
-                            currentState.addTransition(transition[2], findState(transition[1], states));
+                        if (transitionArray[0].equals(currentTransitionArray[0])) {
+                            currentState.addTransition(transitionArray[2], findState(transitionArray[1], states));
                         }
                     }
-                    addedStates.add(currentTransition[0]);
+                    addedStates.add(currentTransitionArray[0]);
                 }
             }
 

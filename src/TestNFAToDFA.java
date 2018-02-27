@@ -1,5 +1,5 @@
-import autamatons.DFA;
-import autamatons.NFA;
+import autamata.DFA;
+import autamata.NFA;
 import exceptions.InvalidInputException;
 import states.State;
 import transtitions.Transition;
@@ -10,11 +10,11 @@ import java.io.IOException;
 import java.util.*;
 
 public class TestNFAToDFA {
-    public static final int INPUT_DIVISIONS = 6;
-    public static final String PRIMARY_INPUT_SPLIT = ",";
-    public static final String SECONDARY_INPUT_SPLIT = "#";
+    private static final int INPUT_DIVISIONS = 6;
+    private static final String PRIMARY_INPUT_SPLIT = ",";
+    private static final String SECONDARY_INPUT_SPLIT = "#";
 
-    public static ArrayList<String> readInputFile(String filePath) throws IOException {
+    private static ArrayList<String> readInputFile(String filePath) throws IOException {
         FileReader fr = new FileReader(filePath);
         BufferedReader br = new BufferedReader(fr);
         ArrayList<String> lines = new ArrayList<>();
@@ -37,25 +37,25 @@ public class TestNFAToDFA {
     }
 
     private static void printEquivalentDFA(DFA dfa, String inputs) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
 
         // Print States
         for (State state : dfa.getStates()) {
-            result += state.toString() + ",";
+            result.append(state.toString()).append(",");
         }
         System.out.println(result.substring(0, result.length() - 1));
 
         // Print Accept States
-        result = "";
+        result = new StringBuilder();
         for (String state : dfa.getAcceptStates()) {
-            result += state + ",";
+            result.append(state).append(",");
         }
-        System.out.print(result.equals("") ? result : result.substring(0, result.length() - 1));
+        System.out.print(result.toString().equals("") ? result.toString() : result.substring(0, result.length() - 1));
 
         // Print Alphabet
-        result = "";
+        result = new StringBuilder();
         for (String alpha : dfa.getAlphabet()) {
-            result += alpha + ",";
+            result.append(alpha).append(",");
         }
         System.out.println(result.substring(0, result.length() - 1));
 
@@ -63,10 +63,10 @@ public class TestNFAToDFA {
         System.out.println(dfa.getStartState());
 
         // Print transitions
-        result = "";
+        result = new StringBuilder();
         for (State state : dfa.getStates()) {
             for (Transition transition : state.getTransitions()) {
-                result += state + "," + transition + "#";
+                result.append(state).append(",").append(transition).append("#");
             }
         }
         System.out.println(result.substring(0, result.length() - 1));
@@ -75,7 +75,7 @@ public class TestNFAToDFA {
         System.out.println(inputs);
     }
 
-    public static void testInput(String[] input) {
+    private static void testInput(String[] input) {
         Set<State> states = new LinkedHashSet<>();
         for (String s : input[0].split(PRIMARY_INPUT_SPLIT)) {
             states.add(new State(s));
@@ -91,37 +91,37 @@ public class TestNFAToDFA {
         String[] inputs = input[5].split(SECONDARY_INPUT_SPLIT);
 
         try {
-            String[] currentTransition;
-            String[] transition;
+            String[] currentTransitionArray;
+            String[] transitionArray;
             String[] transitions = input[4].split(SECONDARY_INPUT_SPLIT);
             Set<String> addedStates = new HashSet<>();
             State currentState, nextState;
             boolean error = false;
-            for (int i = 0; i < transitions.length; i++) {
-                currentTransition = transitions[i].split(PRIMARY_INPUT_SPLIT);
-                if (!addedStates.contains(currentTransition[0])) {
-                    currentState = findState(currentTransition[0], states);
+            for (String transition : transitions) {
+                currentTransitionArray = transition.split(PRIMARY_INPUT_SPLIT);
+                if (!addedStates.contains(currentTransitionArray[0])) {
+                    currentState = findState(currentTransitionArray[0], states);
                     if (currentState != null) {
-                        for (int j = 0; j < transitions.length; j++) {
-                            transition = transitions[j].split(PRIMARY_INPUT_SPLIT);
-                            if (transition.length < 3) {
-                                System.out.print("\nIncomplete Transition " + transitions[j]);
+                        for (String innerTransition : transitions) {
+                            transitionArray = innerTransition.split(PRIMARY_INPUT_SPLIT);
+                            if (transitionArray.length < 3) {
+                                System.out.print("\nIncomplete Transition " + innerTransition);
                                 break;
                             }
-                            if (transition[0].equals(currentTransition[0])) {
-                                nextState = findState(transition[1], states);
+                            if (transitionArray[0].equals(currentTransitionArray[0])) {
+                                nextState = findState(transitionArray[1], states);
                                 if (nextState == null) {
                                     error = true;
-                                    System.out.print("\nInvalid transition " + transitions[j] + " state " + currentTransition[1] + " does not exist");
+                                    System.out.print("\nInvalid transition " + innerTransition + " state " + currentTransitionArray[1] + " does not exist");
                                 } else {
-                                    currentState.addTransition(transition[2], nextState);
+                                    currentState.addTransition(transitionArray[2], nextState);
                                 }
                             }
                         }
-                        addedStates.add(currentTransition[0]);
+                        addedStates.add(currentTransitionArray[0]);
                     } else {
                         error = true;
-                        System.out.print("\nInvalid transition " + transitions[i] + " state " + currentTransition[0] + " does not exist");
+                        System.out.print("\nInvalid transition " + transition + " state " + currentTransitionArray[0] + " does not exist");
                     }
                 }
             }

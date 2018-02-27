@@ -1,4 +1,4 @@
-package autamatons;
+package autamata;
 
 import states.State;
 import transtitions.Transition;
@@ -15,7 +15,7 @@ public class NFA extends Autamaton {
     }
 
     public void validate() throws Exception {
-        String err = "";
+        StringBuilder err = new StringBuilder();
 
         // Accept States Validation
         boolean found;
@@ -27,25 +27,25 @@ public class NFA extends Autamaton {
                 }
             }
             if (!found) {
-                err += "\nInvalid accept state " + acceptState;
+                err.append("\nInvalid accept state ").append(acceptState);
             }
         }
 
         // Start State Validations
         if (!this.getStates().contains(this.getStartState())) {
-            err += "\nInvalid start state";
+            err.append("\nInvalid start state");
         }
 
         // Invalid Transitions Validations
         for (State state : this.getStates()) {
             for (Transition transition : state.getTransitions()) {
                 if (!(this.inAlphabet(transition.getInput()) || transition.getInput().equals(EPSILON))) {
-                    err += "\nInvalid transition " + state.getName() + "," + transition.getNextState() + "," + transition.getInput() + " input " + transition.getInput() + " is not in the alphabet";
+                    err.append("\nInvalid transition ").append(state.getName()).append(",").append(transition.getNextState()).append(",").append(transition.getInput()).append(" input ").append(transition.getInput()).append(" is not in the alphabet");
                 }
             }
         }
-        if (!err.equals("")) {
-            throw new Exception(err);
+        if (!err.toString().equals("")) {
+            throw new Exception(err.toString());
         }
     }
 
@@ -63,7 +63,7 @@ public class NFA extends Autamaton {
         for (State state : states) {
             statesNamesList.add(state.getName());
         }
-        Collections.sort(statesNamesList, String.CASE_INSENSITIVE_ORDER);
+        statesNamesList.sort(String.CASE_INSENSITIVE_ORDER);
         return String.join("*", statesNamesList);
     }
 
@@ -189,14 +189,16 @@ public class NFA extends Autamaton {
             } else {
                 currentState = findState(currentStateName, dfaStates);
             }
-            for (Map.Entry<String, Set<State>> subEntry : entry.getValue().entrySet()) {
-                nextStateName = getSetStateName(subEntry.getValue());
-                if (reject != null && nextStateName.equals(REJECT_STATE)) {
-                    nextState = reject;
-                } else {
-                    nextState = findState(nextStateName, dfaStates);
+            if (currentState != null) {
+                for (Map.Entry<String, Set<State>> subEntry : entry.getValue().entrySet()) {
+                    nextStateName = getSetStateName(subEntry.getValue());
+                    if (reject != null && nextStateName.equals(REJECT_STATE)) {
+                        nextState = reject;
+                    } else {
+                        nextState = findState(nextStateName, dfaStates);
+                    }
+                    currentState.addTransition(subEntry.getKey(), nextState);
                 }
-                currentState.addTransition(subEntry.getKey(), nextState);
             }
         }
         return dfaStates;

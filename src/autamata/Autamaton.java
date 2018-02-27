@@ -1,4 +1,4 @@
-package autamatons;
+package autamata;
 
 import states.State;
 
